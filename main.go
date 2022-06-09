@@ -3,8 +3,10 @@ package main
 import (
 	"brankas_test/config"
 	"brankas_test/dataupload"
+	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
 func main() {
@@ -22,9 +24,20 @@ func main() {
 	}
 
 	// Add the routes
+	http.HandleFunc("/", servetemplate)
 	http.HandleFunc("/upload", dataupload.Uploadfile)
 	http.HandleFunc("/getdata", dataupload.Getdata)
 
 	// Start the server
 	log.Fatalln(http.ListenAndServe(":"+configdata.Webserver.Port, nil))
+}
+
+// servetemplate : This function parses the templates and severs
+// the html files in the templates dir.
+func servetemplate(w http.ResponseWriter, r *http.Request) {
+	lp := filepath.Join("templates", "layout.html")
+	fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
+
+	tmpl, _ := template.ParseFiles(lp, fp)
+	tmpl.ExecuteTemplate(w, "layout", nil)
 }

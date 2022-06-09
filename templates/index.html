@@ -1,0 +1,11 @@
+{{define "title"}} File Upload with GO {{end}}
+
+{{define "body"}}
+	<h1>Hello Brankas</h1>
+	<form action="/upload" method="post" enctype="multipart/form-data">
+
+		<input name="myfile" id="myfile" type="file"><br><br>
+		<input type="submit" value="Upload Now">
+		
+	</form>
+{{end}}

@@ -65,3 +65,15 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 func Getdata(resp http.ResponseWriter, req *http.Request) {
 	// Add the database retrieval part
 }
+
+/*
+
+	Remaining tasks:
+
+	1. Connect to the database
+	2. Save the metadata of the file in the database
+	3. Add validations to the file
+	4. Create a html form with the token
+
+
+*/
