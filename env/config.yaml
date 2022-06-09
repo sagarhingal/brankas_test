@@ -1,5 +1,6 @@
 webserver:
     port: 3000
+    auth: hellobrankas
 
 database:
     host: localhost

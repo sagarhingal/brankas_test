@@ -35,9 +35,9 @@ func main() {
 // servetemplate : This function parses the templates and severs
 // the html files in the templates dir.
 func servetemplate(w http.ResponseWriter, r *http.Request) {
-	lp := filepath.Join("templates", "layout.html")
+	lp := filepath.Join("templates", "index.html")
 	fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
 
 	tmpl, _ := template.ParseFiles(lp, fp)
-	tmpl.ExecuteTemplate(w, "layout", nil)
+	tmpl.ExecuteTemplate(w, "index", dataupload.Auth{Token: config.Configdata.Webserver.Auth})
 }

@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Webserver struct {
 		Port string `yaml:"port"`
+		Auth string `yaml:"auth"`
 	} `yaml:"webserver"`
 
 	Database struct {
