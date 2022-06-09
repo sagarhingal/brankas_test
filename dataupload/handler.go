@@ -14,22 +14,32 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 
 	if req.Method == "POST" {
 
-		// Parse our multi-part form, 10 << 18 specifies
-		// maximum of 8 MB file size
-		req.ParseMultipartForm(10 << 18)
-
 		// FormFile returns the first file for the given key `myFile`
 		// it also returns the FileHeader so we can get the Filename,
 		// the Header and the Size of the file
 		inputfile, handler, err := req.FormFile("myfile")
 		if err != nil {
 			log.Println("Uploadfile() - Unable to retrieve the file. | ", err)
-			helper.Sendresponse(http.StatusBadRequest, []byte("Unable to retrieve the given file."), resp)
+			helper.Sendresponse(http.StatusForbidden, []byte("Unable to retrieve the given file."), resp)
+			return
+		}
+
+		// Size validation
+		if handler.Size > 8000000 {
+			log.Println("Uploadfile() - File size exceeded. | Given file size:", handler.Size/1000000, "MB.")
+			helper.Sendresponse(http.StatusForbidden, []byte("File size greater than 8 MB! Please use a smaller file."), resp)
+			return
 		}
 		// Close the file in the end
 		defer inputfile.Close()
 
 		// Log the stats of the file
+		if !helper.Checktype(handler.Header.Get("Content-Type")) {
+			log.Println("Uploadfile() - Unsupported file type. | ", handler.Header.Get("Content-Type"))
+			helper.Sendresponse(http.StatusForbidden, []byte("Unsupported file type, only image-files are allowed."), resp)
+			return
+		}
+
 		log.Println("Uploadfile() - name: ", handler.Filename)
 		log.Println("Uploadfile() - size: ", handler.Size)
 		log.Println("Uploadfile() - header: ", handler.Header)
@@ -72,8 +82,6 @@ func Getdata(resp http.ResponseWriter, req *http.Request) {
 
 	1. Connect to the database
 	2. Save the metadata of the file in the database
-	3. Add validations to the file
-	4. Create a html form with the token
 
 
 */

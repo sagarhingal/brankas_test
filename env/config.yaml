@@ -7,3 +7,14 @@ database:
     db: testdb
     username: root
     port: 3306
+
+filetype:
+    contenttype: 
+    - image/png 
+    - image/jpeg 
+    - image/gif 
+    - image/tiff
+    - image/vnd.microsoft.icon 
+    - image/x-icon 
+    - image/jpvnd.djvu
+    - image/svg+xml]

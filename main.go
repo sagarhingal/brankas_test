@@ -3,6 +3,7 @@ package main
 import (
 	"brankas_test/config"
 	"brankas_test/dataupload"
+	"brankas_test/helper"
 	"html/template"
 	"log"
 	"net/http"
@@ -21,6 +22,12 @@ func main() {
 	configdata, err := config.Loadconfig(configpath)
 	if err != nil {
 		log.Fatalln("Loadconfig() - Unable to open the configuration file. | ", err)
+	}
+
+	// Load content types
+	helper.Validtypes = make(map[string]bool)
+	for _, value := range configdata.Filetype.Contenttype {
+		helper.Validtypes[value] = true
 	}
 
 	// Add the routes

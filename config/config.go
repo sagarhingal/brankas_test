@@ -21,6 +21,10 @@ type Config struct {
 		DB       string `yaml:"db"`
 		Username string `yaml:"username"`
 	} `yaml:"database"`
+
+	Filetype struct {
+		Contenttype []string `yaml:"contenttype"`
+	} `yaml:"filetype"`
 }
 
 var Configdata Config
@@ -38,6 +42,6 @@ func Loadconfig(path string) (Config, error) {
 	err = decoder.Decode(&Configdata)
 
 	// Print the log after successfull loading of the config variables
-	log.Println("Loadconfig - ", Configdata)
+	log.Println("Loadconfig() - ", Configdata)
 	return Configdata, err
 }
