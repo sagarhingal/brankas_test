@@ -1,0 +1,8 @@
+webserver:
+    port: 3000
+
+database:
+    host: localhost
+    db: testdb
+    username: root
+    port: 3306
