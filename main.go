@@ -2,6 +2,7 @@ package main
 
 import (
 	"brankas_test/config"
+	"brankas_test/dataupload"
 	"log"
 	"net/http"
 )
@@ -19,6 +20,10 @@ func main() {
 	if err != nil {
 		log.Fatalln("Loadconfig() - Unable to open the configuration file. | ", err)
 	}
+
+	// Add the routes
+	http.HandleFunc("/upload", dataupload.Uploadfile)
+	http.HandleFunc("/getdata", dataupload.Getdata)
 
 	// Start the server
 	log.Fatalln(http.ListenAndServe(":"+configdata.Webserver.Port, nil))

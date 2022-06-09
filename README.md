@@ -2,7 +2,7 @@
 .
 .
 # Tasks for the server:
-1. Create a HTTP server which has 2 handlers - /upload && /showdata (optional)
+1. Create a HTTP server which has 2 handlers - /upload && /getdata (optional)
 2. A simple HTML form which has 2 inputs - auth (hidden, value provided by server) && file (takes a file uploaded by the user)
 3. Save the received file to a temporary file in the directory
 4. Write the file metadata to any database
