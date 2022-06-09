@@ -1,6 +1,9 @@
 package helper
 
-import "net/http"
+import (
+	"crypto/rand"
+	"net/http"
+)
 
 var Validtypes map[string]bool
 
@@ -22,4 +25,11 @@ func Checktype(contenttype string) bool {
 	} else {
 		return false
 	}
+}
+
+// Generatenumber : This function returns a random number using
+// Prime function from the crypto/rand package.
+func Generatenumber() int64 {
+	number, _ := rand.Prime(rand.Reader, 16)
+	return number.Int64()
 }
