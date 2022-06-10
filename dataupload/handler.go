@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 func Uploadfile(resp http.ResponseWriter, req *http.Request) {
@@ -72,8 +73,9 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		// Now write this byte array to our temp file
 		tempfile.Write(filebytes)
 
-		// Send it to the database
-		mdata.Newname = tempfile.Name()
+		// Save the metadata in the database
+		// Splitting the filename from the directory name
+		mdata.Newname = strings.Split(tempfile.Name(), "/")[1]
 		err = Dholder.iUploadSQLservice.Savemetadata(requestID, mdata)
 		if err != nil {
 			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp)
@@ -81,9 +83,10 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		}
 
 		// Now send the final response
-		helper.Sendresponse(http.StatusOK, []byte("File "+handler.Filename+" uploaded successfully!"), resp)
 		log.Println("[", requestID, "] | Uploadfile() - File [", handler.Filename, "] uploaded successfully!")
-		return
+		helper.Sendresponse(http.StatusOK, []byte("File "+handler.Filename+" uploaded successfully!"), resp)
+
+		// return
 	} else {
 		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only POST supported. ClientIP: "+req.RemoteAddr), resp)
 	}
@@ -92,12 +95,3 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 func Getdata(resp http.ResponseWriter, req *http.Request) {
 	// Add the database retrieval part
 }
-
-/*
-
-	Remaining tasks:
-
-	1. Save the metadata of the file in the database
-
-
-*/

@@ -13,17 +13,17 @@ var Db *sql.DB
 // Initdatabase : This function initialises the database
 // and creates a shared object for the other services to
 // use.
-func Initdatabase(filename string) {
+func Initdatabase(filename string, requestID int64) {
 	var err error
 	os.Remove(filename)
 	Db, err = sql.Open("sqlite3", filename)
 	if err != nil {
-		log.Fatal("Initdatabase() - Unable to initialise SQLite3. | ", err)
+		log.Fatal("[", requestID, "] | Initdatabase() - Unable to initialise SQLite3. | ", err)
 	} else {
 		if err := createtable(); err != nil {
-			log.Fatalln("Initdatabase() - Unable to create table. | ", err)
+			log.Fatalln("[", requestID, "] | Initdatabase() - Unable to create table. | ", err)
 		} else {
-			log.Println("Initdatabase() - SQLite initialised successfully.")
+			log.Println("[", requestID, "] | Initdatabase() - SQLite initialised successfully.")
 		}
 
 	}

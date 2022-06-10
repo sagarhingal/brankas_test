@@ -21,8 +21,10 @@ func main() {
 	// Load configuration parameters
 	var configdata config.Config
 	configdata, err := config.Loadconfig(configpath)
+	// Adding 0 as the root ID for base services
+	requestID := int64(00000)
 	if err != nil {
-		log.Fatalln("Loadconfig() - Unable to open the configuration file. | ", err)
+		log.Fatalln("[", requestID, "] | Loadconfig() - Unable to open the configuration file. | ", err)
 	}
 
 	// Load content types
@@ -32,10 +34,10 @@ func main() {
 	}
 
 	// Initialize 3rd party dependency
-	dependency.Initall(configdata.Database.DBpath + configdata.Database.DBname)
+	dependency.Initall(configdata.Database.DBpath+configdata.Database.DBname, requestID)
 
 	// Initialize dataupload object
-	dataupload.Initdependency()
+	dataupload.Initdependency(requestID)
 
 	// Add the routes
 	http.HandleFunc("/", servetemplate)
@@ -50,8 +52,6 @@ func main() {
 // the html files in the templates dir.
 func servetemplate(w http.ResponseWriter, r *http.Request) {
 	lp := filepath.Join("templates", "index.html")
-	fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
-
-	tmpl, _ := template.ParseFiles(lp, fp)
+	tmpl, _ := template.ParseFiles(lp)
 	tmpl.ExecuteTemplate(w, "index", dataupload.Auth{Token: config.Configdata.Webserver.Auth})
 }
