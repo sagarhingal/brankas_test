@@ -7,12 +7,15 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 
+	starttime := time.Now()
 	// Generate a unique request ID
 	requestID := helper.Generatenumber()
+
 	// Add the log statement for the handler invocation
 	log.Println("[", requestID, "] | Uploadfile() - Request received by IP:", req.RemoteAddr)
 
@@ -25,14 +28,14 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 
 		if err != nil {
 			log.Println("[", requestID, "] | Uploadfile() - Unable to retrieve the file. | ", err)
-			helper.Sendresponse(http.StatusForbidden, []byte("Unable to retrieve the given file."), resp)
+			helper.Sendresponse(http.StatusForbidden, []byte("Unable to retrieve the given file."), resp, starttime, requestID)
 			return
 		}
 
 		// Size validation
 		if handler.Size > 8000000 {
 			log.Println("[", requestID, "] | Uploadfile() - File size exceeded. | Given file and size:", handler.Filename, " ", handler.Size/1000000, "MB.")
-			helper.Sendresponse(http.StatusForbidden, []byte("File size greater than 8 MB! Please use a smaller file."), resp)
+			helper.Sendresponse(http.StatusForbidden, []byte("File size greater than 8 MB! Please use a smaller file."), resp, starttime, requestID)
 			return
 		}
 		// Close the file in the end
@@ -41,7 +44,7 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		// Log the stats of the file
 		if !helper.Checktype(handler.Header.Get("Content-Type")) {
 			log.Println("[", requestID, "] | Uploadfile() - Unsupported file type. | ", handler.Header.Get("Content-Type"), "Given file: ", handler.Filename)
-			helper.Sendresponse(http.StatusForbidden, []byte("Unsupported file type, only image-files are allowed."), resp)
+			helper.Sendresponse(http.StatusForbidden, []byte("Unsupported file type, only image-files are allowed."), resp, starttime, requestID)
 			return
 		}
 
@@ -57,7 +60,7 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		tempfile, err := ioutil.TempFile("files", "image-*.png")
 		if err != nil {
 			log.Println("[", requestID, "] | Uploadfile() - Temp file creation error. | ", err)
-			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp)
+			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp, starttime, requestID)
 			return
 		}
 
@@ -67,7 +70,7 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		filebytes, err := ioutil.ReadAll(inputfile)
 		if err != nil {
 			log.Println("[", requestID, "] | Uploadfile() - Unable to read the file: ", handler.Filename, " | ", err)
-			helper.Sendresponse(http.StatusBadRequest, []byte("Unable to read the given file."), resp)
+			helper.Sendresponse(http.StatusBadRequest, []byte("Unable to read the given file."), resp, starttime, requestID)
 			return
 		}
 
@@ -79,22 +82,25 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		mdata.Newname = strings.Split(tempfile.Name(), "/")[1]
 		err = Dholder.iUploadSQLservice.Savemetadata(requestID, mdata)
 		if err != nil {
-			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp)
+			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp, starttime, requestID)
 			return
 		}
 
 		// Now send the final response
 		log.Println("[", requestID, "] | Uploadfile() - File [", handler.Filename, "] uploaded successfully!")
-		helper.Sendresponse(http.StatusOK, []byte("File "+handler.Filename+" uploaded successfully!"), resp)
+		helper.Sendresponse(http.StatusOK, []byte("File "+handler.Filename+" uploaded successfully!"), resp, starttime, requestID)
 
 		// return
 	} else {
 		log.Println("[", requestID, "] | Uploadfile() - Wrong method detected. Used Method[", req.Method, "] and ClientIP: ", req.RemoteAddr)
-		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only POST supported."), resp)
+		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only POST supported."), resp, starttime, requestID)
 	}
 }
 
 func Getdata(resp http.ResponseWriter, req *http.Request) {
+
+	// Start the time
+	starttime := time.Now()
 
 	// Generate the unique requestID
 	requestID := helper.Generatenumber()
@@ -106,7 +112,7 @@ func Getdata(resp http.ResponseWriter, req *http.Request) {
 		mdata := []Metadata{}
 		mdata, err := Dholder.iUploadSQLservice.Getdata(requestID)
 		if err != nil {
-			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong. Please try again later."), resp)
+			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong. Please try again later."), resp, starttime, requestID)
 			return
 		}
 
@@ -119,10 +125,10 @@ func Getdata(resp http.ResponseWriter, req *http.Request) {
 		}
 
 		// Send the final response
-		helper.Sendresponse(http.StatusOK, payload, resp)
+		helper.Sendresponse(http.StatusOK, payload, resp, starttime, requestID)
 
 	} else {
 		log.Println("[", requestID, "] | Getdata() - Wrong method detected. Used Method[", req.Method, "] and ClientIP: ", req.RemoteAddr)
-		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only GET supported."), resp)
+		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only GET supported."), resp, starttime, requestID)
 	}
 }
