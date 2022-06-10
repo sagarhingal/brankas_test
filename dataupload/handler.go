@@ -2,6 +2,7 @@ package dataupload
 
 import (
 	"brankas_test/helper"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -88,10 +89,40 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 
 		// return
 	} else {
-		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only POST supported. ClientIP: "+req.RemoteAddr), resp)
+		log.Println("[", requestID, "] | Uploadfile() - Wrong method detected. Used Method[", req.Method, "] and ClientIP: ", req.RemoteAddr)
+		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only POST supported."), resp)
 	}
 }
 
 func Getdata(resp http.ResponseWriter, req *http.Request) {
-	// Add the database retrieval part
+
+	// Generate the unique requestID
+	requestID := helper.Generatenumber()
+	// Add the log statement for the handler invocation
+	log.Println("[", requestID, "] | Getdata() - Request received by IP:", req.RemoteAddr)
+	if req.Method == http.MethodGet {
+
+		// Get the data from the database
+		mdata := []Metadata{}
+		mdata, err := Dholder.iUploadSQLservice.Getdata(requestID)
+		if err != nil {
+			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong. Please try again later."), resp)
+			return
+		}
+
+		var payload []byte
+		// If the data is empty
+		if len(mdata) == 0 {
+			payload = []byte("No data yet. Try uploading a file to see things here.")
+		} else {
+			payload, _ = json.Marshal(mdata)
+		}
+
+		// Send the final response
+		helper.Sendresponse(http.StatusOK, payload, resp)
+
+	} else {
+		log.Println("[", requestID, "] | Getdata() - Wrong method detected. Used Method[", req.Method, "] and ClientIP: ", req.RemoteAddr)
+		helper.Sendresponse(http.StatusBadRequest, []byte("Wrong method detected. Only GET supported."), resp)
+	}
 }

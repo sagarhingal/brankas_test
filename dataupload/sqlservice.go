@@ -38,7 +38,7 @@ func (us *UploadSQLservice) Savemetadata(requestID int64, data Metadata) error {
 // Getdata : This function fetches all the entries from the images table
 func (us *UploadSQLservice) Getdata(requestID int64) (dataarray []Metadata, err error) {
 
-	rows, err := us.DB.Query("SELECT * FROM imgmeta")
+	rows, err := us.DB.Query("SELECT originalname, newname, filesize, contenttype, agent, clientip FROM imgmeta")
 	if err != nil {
 		log.Println("[", requestID, "] | Getdata() - Unable to execute query. | ", err)
 		return nil, err
