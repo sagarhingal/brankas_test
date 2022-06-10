@@ -16,10 +16,8 @@ type Config struct {
 	} `yaml:"webserver"`
 
 	Database struct {
-		Host     string `yaml:"host"`
-		Port     string `yaml:"port"`
-		DB       string `yaml:"db"`
-		Username string `yaml:"username"`
+		DBname string `yaml:"dbname"`
+		DBpath string `yaml:"dbpath"`
 	} `yaml:"database"`
 
 	Filetype struct {

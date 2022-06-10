@@ -3,10 +3,8 @@ webserver:
     auth: hellobrankas
 
 database:
-    host: localhost
-    db: testdb
-    username: root
-    port: 3306
+    dbname: test.db
+    dbpath: sqlite/
 
 filetype:
     contenttype: 

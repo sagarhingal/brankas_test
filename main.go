@@ -3,6 +3,7 @@ package main
 import (
 	"brankas_test/config"
 	"brankas_test/dataupload"
+	"brankas_test/dependency"
 	"brankas_test/helper"
 	"html/template"
 	"log"
@@ -29,6 +30,12 @@ func main() {
 	for _, value := range configdata.Filetype.Contenttype {
 		helper.Validtypes[value] = true
 	}
+
+	// Initialize 3rd party dependency
+	dependency.Initall(configdata.Database.DBpath + configdata.Database.DBname)
+
+	// Initialize dataupload object
+	dataupload.Initdependency()
 
 	// Add the routes
 	http.HandleFunc("/", servetemplate)

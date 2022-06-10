@@ -48,11 +48,8 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 		mdata.Agent = req.UserAgent()
 		mdata.ClientIP = req.RemoteAddr
 		mdata.Contenttype = handler.Header.Get("Content-Type")
-		mdata.Filename = handler.Filename
-		mdata.Size = handler.Size
-
-		// log.Println("Uploadfile() - Metadata prepared {", mdata, "}")
-		// Send it to the database
+		mdata.Originalname = handler.Filename
+		mdata.Filesize = handler.Size
 
 		// Create a temp file to save the received image
 		tempfile, err := ioutil.TempFile("files", "image-*.png")
@@ -61,6 +58,7 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp)
 			return
 		}
+
 		defer tempfile.Close()
 
 		// Decode the received file into byte array
@@ -73,6 +71,14 @@ func Uploadfile(resp http.ResponseWriter, req *http.Request) {
 
 		// Now write this byte array to our temp file
 		tempfile.Write(filebytes)
+
+		// Send it to the database
+		mdata.Newname = tempfile.Name()
+		err = Dholder.iUploadSQLservice.Savemetadata(requestID, mdata)
+		if err != nil {
+			helper.Sendresponse(http.StatusInternalServerError, []byte("Something went wrong with the file upload. Please try again later."), resp)
+			return
+		}
 
 		// Now send the final response
 		helper.Sendresponse(http.StatusOK, []byte("File "+handler.Filename+" uploaded successfully!"), resp)
@@ -91,8 +97,7 @@ func Getdata(resp http.ResponseWriter, req *http.Request) {
 
 	Remaining tasks:
 
-	1. Connect to the database
-	2. Save the metadata of the file in the database
+	1. Save the metadata of the file in the database
 
 
 */
